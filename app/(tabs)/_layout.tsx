@@ -11,7 +11,7 @@ export default function TabLayout() {
         headerShadowVisible: false,
         tabBarShowLabel: false,
         sceneStyle: {
-          backgroundColor: "transparent",
+          backgroundColor: "#fff",
         },
         headerTitleStyle: {
           fontSize: 24,
