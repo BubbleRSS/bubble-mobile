@@ -47,6 +47,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   tab: {
+    flex: 1,
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 40,
