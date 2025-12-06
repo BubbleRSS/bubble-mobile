@@ -10,14 +10,17 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFlavorStore } from "@/stores/useFlavorStore";
 
 export default function Index() {
   const { items, loading, refresh, loadMore, hasMore } = useRSS();
+  const { selectedFlavors } = useFlavorStore();
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
       <View>
         <FlavorSelector />
+        <Text>Selected: {selectedFlavors}</Text>
       </View>
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" />

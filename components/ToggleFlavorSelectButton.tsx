@@ -1,11 +1,11 @@
 import React from "react";
 import { Pressable } from "react-native";
 import * as Lucide from "lucide-react-native";
-import { useFlavorStore } from "@/stores/useFlavorStore";
+import { useFlavorSelectorStore } from "@/stores/useFlavorSelectorStore";
 
 export default function ToggleFlavorSelectButton() {
-  const toggle = useFlavorStore((s) => s.toggleSelector);
-  const isOpen = useFlavorStore((s) => s.isSelectorOpen);
+  const toggle = useFlavorSelectorStore((s) => s.toggleSelector);
+  const isOpen = useFlavorSelectorStore((s) => s.isSelectorOpen);
 
   return (
     <Pressable onPress={toggle} style={{ padding: 10 }}>
