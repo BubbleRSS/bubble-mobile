@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { parseFeed } from "@rowanmanning/feed-parser";
-import { Feed } from "@rowanmanning/feed-parser/lib/feed/base";
+import { Feed, FeedImage } from "@rowanmanning/feed-parser/lib/feed/base";
 
 const RSS_URLS = [
   "https://dev.to/feed",
@@ -20,6 +20,7 @@ export interface FeedItem {
   description: string;
   content: string | null;
   authors: (string | null)[];
+  image: FeedImage | null;
 }
 
 export function useRSS() {
@@ -50,6 +51,7 @@ export function useRSS() {
               description: item.description || "Sem descrição",
               content: item.content,
               authors: item.authors?.map((a) => a.name),
+              image: item.image,
             });
           });
 
