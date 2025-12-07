@@ -56,12 +56,12 @@ export function useRSS() {
 
             return feed.items.map((item) => ({
               id: item.id || item.url || new Date().toISOString(),
-              title: item.title || "Sem título",
-              source: item.feed.title || "Feed Sem Nome",
+              title: item.title || "No title",
+              source: item.feed.title || "Feed Without Name",
               url: item.url,
               datePublished: item.published || new Date(),
               dateUpdated: item.updated,
-              description: item.description || "Sem descrição",
+              description: item.description || "No description",
               content: item.content,
               authors: item.authors?.map((a) => a.name),
               image: item.image,
@@ -91,7 +91,7 @@ export function useRSS() {
         setVisibleItems(allFeedItems.slice(0, PAGE_SIZE));
         setPage(1);
       } catch (err) {
-        console.error("Erro geral no hook useRSS:", err);
+        console.error("General error in useRSS hook:", err);
       } finally {
         setLoading(false);
       }
