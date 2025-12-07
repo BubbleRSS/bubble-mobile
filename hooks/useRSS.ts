@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { parseFeed } from "@rowanmanning/feed-parser";
 import { Feed, FeedImage } from "@rowanmanning/feed-parser/lib/feed/base";
+import { useAsyncStorage } from "./useAsyncStorage";
 
 const RSS_URLS = [
   "https://dev.to/feed",
@@ -28,20 +29,32 @@ export function useRSS() {
   const [loading, setLoading] = useState(true);
   const [visibleItems, setVisibleItems] = useState<FeedItem[]>([]);
   const [page, setPage] = useState(1);
+  const { getData, storeData } = useAsyncStorage();
+  const isFirstFetch = useRef(true);
 
   const fetchFeeds = useCallback(async () => {
-    try {
+    const cached = await getData("FEED_ITEMS");
+    const cachedItems = cached ? (JSON.parse(cached) as FeedItem[]) : [];
+
+    if (cachedItems && isFirstFetch.current) {
       setLoading(true);
-      const promises = RSS_URLS.map(async (url) => {
-        try {
-          const response = await fetch(url);
-          const xmlText = await response.text();
+      setAllItems(cachedItems);
+      setVisibleItems(cachedItems.slice(0, PAGE_SIZE));
+      setPage(1);
+      setLoading(false);
+      isFirstFetch.current = false;
+    } else {
+      try {
+        setLoading(true);
 
-          const feed = parseFeed(xmlText) as Feed;
-          const items: FeedItem[] = [];
+        const promises = RSS_URLS.map(async (url) => {
+          try {
+            const response = await fetch(url);
+            const xmlText = await response.text();
 
-          feed.items.forEach((item) => {
-            items.push({
+            const feed = parseFeed(xmlText) as Feed;
+
+            return feed.items.map((item) => ({
               id: item.id || item.url || new Date().toISOString(),
               title: item.title || "Sem título",
               source: item.feed.title || "Feed Sem Nome",
@@ -52,33 +65,38 @@ export function useRSS() {
               content: item.content,
               authors: item.authors?.map((a) => a.name),
               image: item.image,
-            });
-          });
+            }));
+          } catch {
+            return [];
+          }
+        });
 
-          return items;
-        } catch (err) {
-          console.warn(`Falha ao carregar feed: ${url}`, err);
-          return [];
-        } finally {
-          setLoading(false);
-        }
-      });
+        const results = await Promise.all(promises);
 
-      const results = await Promise.all(promises);
-      const mergedItems = results.flat();
+        const fetchedItems = results
+          .flat()
+          .sort(
+            (a, b) => b.datePublished.getTime() - a.datePublished.getTime(),
+          );
 
-      const sortedItems = mergedItems.sort(
-        (a, b) => b.datePublished.getTime() - a.datePublished.getTime(),
-      );
+        const cachedIds = new Set(cachedItems.map((i) => i.id));
+        const allFeedItems = [
+          ...cachedItems,
+          ...fetchedItems.filter((i) => !cachedIds.has(i.id)),
+        ];
 
-      setAllItems(sortedItems);
+        await storeData("FEED_ITEMS", JSON.stringify(allFeedItems));
 
-      setVisibleItems(sortedItems.slice(0, PAGE_SIZE));
-      setPage(1);
-    } catch (error) {
-      console.error("Erro geral no hook useRSS:", error);
+        setAllItems(allFeedItems);
+        setVisibleItems(allFeedItems.slice(0, PAGE_SIZE));
+        setPage(1);
+      } catch (err) {
+        console.error("Erro geral no hook useRSS:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [storeData, getData]);
 
   const loadMore = () => {
     if (visibleItems.length >= allItems.length) return;
