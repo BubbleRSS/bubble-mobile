@@ -36,10 +36,11 @@ export default function TabBar({ state, navigation }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
     flexDirection: "row",
     padding: 12,
     marginHorizontal: 30,
-    marginBottom: 30,
+    bottom: 10,
     borderRadius: 40,
     backgroundColor: "#fff",
     borderWidth: 1,

@@ -7,11 +7,17 @@ import { useEffect, useState } from "react";
 const flavors = ["Shopping", "Technology", "Financial", "Social"] as const;
 
 export default function FlavorSelector() {
-  const { setSelectedFlavors } = useFlavorStore();
+  const { selectedFlavors, setSelectedFlavors } = useFlavorStore();
   const { isSelectorOpen } = useFlavorSelectorStore();
   const [localSelectedFlavors, setLocalSelectedFlavors] = useState<
     FlavorType[]
   >([]);
+
+  useEffect(() => {
+    if (isSelectorOpen) {
+      setLocalSelectedFlavors(selectedFlavors);
+    }
+  }, [isSelectorOpen]);
 
   const toggleFlavor = (flavor: FlavorType) => {
     const selecteds = localSelectedFlavors;
